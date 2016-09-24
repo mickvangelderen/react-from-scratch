@@ -2,7 +2,7 @@ import Node from './Node'
 import { expectAttributes } from './util'
 import { expectChildren } from './util'
 import { expectEvents } from './util'
-import { expectString } from './util'
+import expectString from 'checko/expectString'
 
 export default function Element(tag, attributes, events, children) {
   Node.call(this, children)
@@ -25,16 +25,6 @@ Element.prototype = Object.create(Node.prototype, {
     configurable: true
   }
 })
-
-Element.prototype.toString = function() {
-  const { tag, attributes, children } = this
-
-  const a = Object.keys(attributes).map(key => `${key}="${attributes[key]}"`).join(' ')
-
-  const c = children.map(child => '\t' + child.toString()).join('\n')
-
-  return `<${tag} ${a}>\n${c}\n</${tag}>`
-}
 
 Element.prototype.mount = function(parent, before) {
   const { tag, attributes, events, children } = this

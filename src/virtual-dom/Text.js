@@ -14,13 +14,9 @@ Text.prototype = Object.create(Node.prototype, {
   }
 })
 
-Text.prototype.toString = function() {
-  return `"${this.text}"`
-}
-
 Text.prototype.mount = function(parent, before) {
   const element = this.element = document.createTextNode(this.text)
-  
+
   element['@@virtual'] = this
 
   if (before) {

@@ -14,10 +14,6 @@ Comment.prototype = Object.create(Node.prototype, {
   }
 })
 
-Comment.prototype.toString = function() {
-  return `"${this.text}"`
-}
-
 Comment.prototype.mount = function(parent, before) {
   const element = document.createComment(this.text)
 

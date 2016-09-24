@@ -1,146 +1,14 @@
+/* eslint-env browser */
+
 import data from './data'
 import Element from './virtual-dom/Element'
 import Text from './virtual-dom/Text'
-
-const NO_ATTRIBUTES = {}
-const NO_EVENTS = {}
-const NO_CHILDREN = []
-
-function has(object, property) {
-  return Object.prototype.hasOwnProperty.call(object, property)
-}
-
-function createVirtualDomFromDom(node) {
-  let element
-  switch(node.nodeType) {
-    case Node.ELEMENT_NODE:
-      element = new Element(
-        node.tagName.toLowerCase(),
-        Array.prototype.reduce.call(node.attributes, (map, { name, value }) => {
-          map[name] = value
-          return map
-        }, {}),
-        NO_EVENTS,
-        Array.prototype.map.call(node.childNodes, createVirtualDomFromDom)
-      )
-      break
-    case Node.TEXT_NODE:
-      element = new Text(node.nodeValue)
-      break
-    case Node.COMMENT_NODE:
-      element = new Comment(node.nodeValue)
-      break
-    default:
-      throw new Error('Cannot convert nodeType ' + node.nodeType + ' to virtual dom.')
-  }
-  element.element = node
-  return element
-}
-
-function reconcile(parent, actual, desired) {
-  if (actual) {
-    if (!actual.element) throw new Error('Expected actual to have an associated element.')
-    if (desired) {
-      // Proceed as normal.
-    } else {
-      // Remove actual.
-      actual.unmount(parent)
-      return
-    }
-  } else {
-    if (desired) {
-      // Add desired.
-      desired.mount(parent)
-      return
-    } else {
-      throw new Error('Cannot reconcile two non-existing nodes.')
-    }
-  }
-
-  if (actual.constructor !== desired.constructor) {
-    // Replace actual by desired.
-    desired.mount(parent, actual.element)
-    actual.unmount(parent)
-    return
-  }
-
-  switch (actual.constructor) {
-    case Element:
-      if (actual.tag !== desired.tag) {
-        // Replace actual by desired.
-        desired.mount(parent, actual.element)
-        actual.unmount(parent)
-        return
-      } else {
-        Object.keys(actual.attributes).forEach(key => {
-          if (has(desired.attributes, key)) {
-            if (actual.attributes[key] !== desired.attributes[key]) {
-              // Attribute changed.
-              actual.element.setAttribute(key, desired.attributes[key])
-              if (key === 'value') {
-                actual.element.value = desired.attributes[key]
-              }
-            } else {
-              // Attribute unchanged.
-            }
-          } else {
-            // Attribute removed.
-            actual.element.removeAttribute(key)
-          }
-        })
-        Object.keys(desired.attributes).forEach(key => {
-          if (has(actual.attributes, key)) {
-            // Already handled
-          } else {
-            // Attribute added.
-            actual.element.setAttribute(key, desired.attributes[key])
-            if (key === 'value') {
-              actual.element.value = desired.attributes[key]
-            }
-          }
-        })
-
-        Object.keys(actual.events).forEach(key => {
-          if (has(desired.events, key)) {
-            if (actual.events[key] !== desired.events[key]) {
-              actual.element.removeEventListener(key, actual.events[key], false)
-              actual.element.addEventListener(key, desired.events[key], false)
-            }
-          } else {
-            actual.element.removeEventListener(key, actual.events[key], false)
-          }
-        })
-
-        Object.keys(desired.events).forEach(key => {
-          if (has(actual.events, key)) {
-            // Already handled
-          } else {
-            actual.element.addEventListener(key, desired.events[key], false)
-          }
-        })
-
-        for (let i = 0, l = Math.max(actual.children.length, desired.children.length); i < l; i++) {
-          reconcile(actual.element, actual.children[i], desired.children[i])
-        }
-
-        desired.element = actual.element
-        actual.element = null
-      }
-      break
-    case Text:
-    case Comment:
-      if (actual.text !== desired.text) {
-        actual.element.nodeValue = desired.text
-      }
-      desired.element = actual.element
-      actual.element = null
-      break
-  }
-}
-
-function getRoot() { return document.getElementById('root') }
-
-let actual = createVirtualDomFromDom(getRoot())
+import domToVirtualDom from './virtual-dom/domToVirtualDom'
+import virtualDomToHtml from './virtual-dom/virtualDomToHtml'
+import NO_ATTRIBUTES from './virtual-dom/NO_ATTRIBUTES'
+import NO_EVENTS from './virtual-dom/NO_EVENTS'
+import NO_CHILDREN from './virtual-dom/NO_CHILDREN'
+import reconcile from './virtual-dom/reconcile'
 
 const ID_LENGTH = 6
 const ID_CHARACTERS = 'abcdefghijklmnopqrstuvwxyz0123456789'
@@ -156,7 +24,6 @@ function generateId() {
 
 function signInFormSubmit(event) {
   event.preventDefault()
-
 
   setTimeout(function() {
     const user = {
@@ -187,8 +54,6 @@ function signInFormSubmit(event) {
 }
 
 function signInFormUsernameInput(event) {
-  console.log(event.target.value)
-
   data.username = event.target.value
 
   if (data.username === '') {
@@ -238,7 +103,7 @@ function renderActiveSessionForm(data) {
           return new Element('option', { value: session.id, selected: session.id === data.activeSessionId }, NO_EVENTS, [ new Text(user.name) ])
         })
       )
-    ]),
+    ])
   ])
 }
 
@@ -267,6 +132,11 @@ function renderItems(items) {
   ))
 }
 
+let actual = domToVirtualDom(document.getElementById('root'))
+
+render()
+// setInterval(render, 1000)
+
 function render() {
   const desired = new Element('div', { id: 'root', class: 'container' }, NO_EVENTS, [
     renderSignInForm(data),
@@ -275,10 +145,11 @@ function render() {
     new Element('span', NO_ATTRIBUTES, NO_EVENTS, [ new Text(new Date().toString()) ])
   ])
 
-  reconcile(getRoot().parentNode, actual, desired)
+  desired.children.push(new Element('pre', NO_ATTRIBUTES, NO_EVENTS, [
+    new Text(virtualDomToHtml(desired))
+  ]))
+
+  reconcile(actual.element.parentNode, actual, desired)
 
   actual = desired
 }
-
-render()
-// setInterval(render, 1000)
