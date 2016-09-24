@@ -54,153 +54,37 @@
 	
 	var _Element2 = _interopRequireDefault(_Element);
 	
-	var _Text = __webpack_require__(8);
+	var _Text = __webpack_require__(23);
 	
 	var _Text2 = _interopRequireDefault(_Text);
 	
+	var _domToVirtualDom = __webpack_require__(24);
+	
+	var _domToVirtualDom2 = _interopRequireDefault(_domToVirtualDom);
+	
+	var _virtualDomToHtml = __webpack_require__(27);
+	
+	var _virtualDomToHtml2 = _interopRequireDefault(_virtualDomToHtml);
+	
+	var _NO_ATTRIBUTES = __webpack_require__(28);
+	
+	var _NO_ATTRIBUTES2 = _interopRequireDefault(_NO_ATTRIBUTES);
+	
+	var _NO_EVENTS = __webpack_require__(26);
+	
+	var _NO_EVENTS2 = _interopRequireDefault(_NO_EVENTS);
+	
+	var _NO_CHILDREN = __webpack_require__(29);
+	
+	var _NO_CHILDREN2 = _interopRequireDefault(_NO_CHILDREN);
+	
+	var _reconcile = __webpack_require__(30);
+	
+	var _reconcile2 = _interopRequireDefault(_reconcile);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-	
-	const NO_ATTRIBUTES = {};
-	const NO_EVENTS = {};
-	const NO_CHILDREN = [];
-	
-	function has(object, property) {
-	  return Object.prototype.hasOwnProperty.call(object, property);
-	}
-	
-	function createVirtualDomFromDom(node) {
-	  let element;
-	  switch (node.nodeType) {
-	    case Node.ELEMENT_NODE:
-	      element = new _Element2.default(node.tagName.toLowerCase(), Array.prototype.reduce.call(node.attributes, (map, _ref) => {
-	        let name = _ref.name;
-	        let value = _ref.value;
-	
-	        map[name] = value;
-	        return map;
-	      }, {}), NO_EVENTS, Array.prototype.map.call(node.childNodes, createVirtualDomFromDom));
-	      break;
-	    case Node.TEXT_NODE:
-	      element = new _Text2.default(node.nodeValue);
-	      break;
-	    case Node.COMMENT_NODE:
-	      element = new Comment(node.nodeValue);
-	      break;
-	    default:
-	      throw new Error('Cannot convert nodeType ' + node.nodeType + ' to virtual dom.');
-	  }
-	  element.element = node;
-	  return element;
-	}
-	
-	function reconcile(parent, actual, desired) {
-	  if (actual) {
-	    if (!actual.element) throw new Error('Expected actual to have an associated element.');
-	    if (desired) {
-	      // Proceed as normal.
-	    } else {
-	      // Remove actual.
-	      actual.unmount(parent);
-	      return;
-	    }
-	  } else {
-	    if (desired) {
-	      // Add desired.
-	      desired.mount(parent);
-	      return;
-	    } else {
-	      throw new Error('Cannot reconcile two non-existing nodes.');
-	    }
-	  }
-	
-	  if (actual.constructor !== desired.constructor) {
-	    // Replace actual by desired.
-	    desired.mount(parent, actual.element);
-	    actual.unmount(parent);
-	    return;
-	  }
-	
-	  switch (actual.constructor) {
-	    case _Element2.default:
-	      if (actual.tag !== desired.tag) {
-	        // Replace actual by desired.
-	        desired.mount(parent, actual.element);
-	        actual.unmount(parent);
-	        return;
-	      } else {
-	        Object.keys(actual.attributes).forEach(key => {
-	          if (has(desired.attributes, key)) {
-	            if (actual.attributes[key] !== desired.attributes[key]) {
-	              // Attribute changed.
-	              actual.element.setAttribute(key, desired.attributes[key]);
-	              if (key === 'value') {
-	                actual.element.value = desired.attributes[key];
-	              }
-	            } else {
-	              // Attribute unchanged.
-	            }
-	          } else {
-	            // Attribute removed.
-	            actual.element.removeAttribute(key);
-	          }
-	        });
-	        Object.keys(desired.attributes).forEach(key => {
-	          if (has(actual.attributes, key)) {
-	            // Already handled
-	          } else {
-	            // Attribute added.
-	            actual.element.setAttribute(key, desired.attributes[key]);
-	            if (key === 'value') {
-	              actual.element.value = desired.attributes[key];
-	            }
-	          }
-	        });
-	
-	        Object.keys(actual.events).forEach(key => {
-	          if (has(desired.events, key)) {
-	            if (actual.events[key] !== desired.events[key]) {
-	              actual.element.removeEventListener(key, actual.events[key], false);
-	              actual.element.addEventListener(key, desired.events[key], false);
-	            }
-	          } else {
-	            actual.element.removeEventListener(key, actual.events[key], false);
-	          }
-	        });
-	
-	        Object.keys(desired.events).forEach(key => {
-	          if (has(actual.events, key)) {
-	            // Already handled
-	          } else {
-	            actual.element.addEventListener(key, desired.events[key], false);
-	          }
-	        });
-	
-	        for (let i = 0, l = Math.max(actual.children.length, desired.children.length); i < l; i++) {
-	          reconcile(actual.element, actual.children[i], desired.children[i]);
-	        }
-	
-	        desired.element = actual.element;
-	        actual.element = null;
-	      }
-	      break;
-	    case _Text2.default:
-	    case Comment:
-	      if (actual.text !== desired.text) {
-	        actual.element.nodeValue = desired.text;
-	      }
-	      desired.element = actual.element;
-	      actual.element = null;
-	      break;
-	  }
-	}
-	
-	function getRoot() {
-	  return document.getElementById('root');
-	}
-	
-	let actual = createVirtualDomFromDom(getRoot());
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } } /* eslint-env browser */
 	
 	const ID_LENGTH = 6;
 	const ID_CHARACTERS = 'abcdefghijklmnopqrstuvwxyz0123456789';
@@ -246,8 +130,6 @@
 	}
 	
 	function signInFormUsernameInput(event) {
-	  console.log(event.target.value);
-	
 	  _data2.default.username = event.target.value;
 	
 	  if (_data2.default.username === '') {
@@ -266,7 +148,7 @@
 	}
 	
 	function renderSignInForm(data) {
-	  return new _Element2.default('form', NO_ATTRIBUTES, { submit: signInFormSubmit }, [new _Element2.default('div', { class: ['form-group'].concat(_toConsumableArray(data.signInFormValidUsername ? ['has-success'] : ['has-error'])).join(' ') }, NO_EVENTS, [new _Element2.default('label', { for: 'username' }, NO_EVENTS, [new _Text2.default('Username')]), new _Element2.default('input', { type: 'text', class: 'form-control', id: 'username', placeholder: 'Username', value: data.username }, { input: signInFormUsernameInput }, NO_CHILDREN)].concat(_toConsumableArray(data.signInFormValidUsername ? [] : [new _Element2.default('span', { class: 'help-block' }, NO_EVENTS, [new _Text2.default('Please provide a username.')])]))), new _Element2.default('div', { class: 'form-group' }, NO_EVENTS, [new _Element2.default('label', { for: 'password' }, NO_EVENTS, [new _Text2.default('Password')]), new _Element2.default('input', { type: 'password', class: 'form-control', id: 'password', placeholder: 'Password', value: data.password }, { change: signInFormPasswordChange }, NO_CHILDREN)]), new _Element2.default('button', { class: 'btn btn-primary', type: 'submit', disabled: data.signInFormDisabled }, NO_EVENTS, [new _Text2.default('Sign In')])]);
+	  return new _Element2.default('form', _NO_ATTRIBUTES2.default, { submit: signInFormSubmit }, [new _Element2.default('div', { class: ['form-group'].concat(_toConsumableArray(data.signInFormValidUsername ? ['has-success'] : ['has-error'])).join(' ') }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'username' }, _NO_EVENTS2.default, [new _Text2.default('Username')]), new _Element2.default('input', { type: 'text', class: 'form-control', id: 'username', placeholder: 'Username', value: data.username }, { input: signInFormUsernameInput }, _NO_CHILDREN2.default)].concat(_toConsumableArray(data.signInFormValidUsername ? [] : [new _Element2.default('span', { class: 'help-block' }, _NO_EVENTS2.default, [new _Text2.default('Please provide a username.')])]))), new _Element2.default('div', { class: 'form-group' }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'password' }, _NO_EVENTS2.default, [new _Text2.default('Password')]), new _Element2.default('input', { type: 'password', class: 'form-control', id: 'password', placeholder: 'Password', value: data.password }, { change: signInFormPasswordChange }, _NO_CHILDREN2.default)]), new _Element2.default('button', { class: 'btn btn-primary', type: 'submit', disabled: data.signInFormDisabled }, _NO_EVENTS2.default, [new _Text2.default('Sign In')])]);
 	}
 	
 	function activeSessionFormActiveSessionChange(event) {
@@ -277,43 +159,47 @@
 	}
 	
 	function renderActiveSessionForm(data) {
-	  return new _Element2.default('form', NO_ATTRIBUTES, NO_EVENTS, [new _Element2.default('div', { class: 'form-group' }, NO_EVENTS, [new _Element2.default('label', { for: 'active-session' }, NO_EVENTS, [new _Text2.default('Active Session')]), new _Element2.default('select', { class: 'form-control', id: 'active-session' }, { change: activeSessionFormActiveSessionChange }, data.sessions.map(session => {
+	  return new _Element2.default('form', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Element2.default('div', { class: 'form-group' }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'active-session' }, _NO_EVENTS2.default, [new _Text2.default('Active Session')]), new _Element2.default('select', { class: 'form-control', id: 'active-session' }, { change: activeSessionFormActiveSessionChange }, data.sessions.map(session => {
 	    const user = data.users.filter(user => user.id === session.userId)[0];
-	    return new _Element2.default('option', { value: session.id, selected: session.id === data.activeSessionId }, NO_EVENTS, [new _Text2.default(user.name)]);
+	    return new _Element2.default('option', { value: session.id, selected: session.id === data.activeSessionId }, _NO_EVENTS2.default, [new _Text2.default(user.name)]);
 	  }))])]);
 	}
 	
 	function renderActiveUser(data) {
-	  const activeSession = data.sessions.filter(_ref2 => {
-	    let id = _ref2.id;
+	  const activeSession = data.sessions.filter(_ref => {
+	    let id = _ref.id;
 	    return id === data.activeSessionId;
 	  })[0];
-	  const activeUser = activeSession ? data.users.filter(_ref3 => {
-	    let id = _ref3.id;
+	  const activeUser = activeSession ? data.users.filter(_ref2 => {
+	    let id = _ref2.id;
 	    return id === activeSession.userId;
 	  })[0] : undefined;
-	  const activeItems = activeUser ? data.items.filter(_ref4 => {
-	    let userId = _ref4.userId;
+	  const activeItems = activeUser ? data.items.filter(_ref3 => {
+	    let userId = _ref3.userId;
 	    return userId === activeUser.id;
 	  }) : [];
 	
-	  return new _Element2.default('div', NO_ATTRIBUTES, NO_EVENTS, activeUser ? [new _Element2.default('p', NO_ATTRIBUTES, NO_EVENTS, [new _Text2.default('Welcome ' + activeUser.name + '.')]), renderItems(activeItems)] : [new _Element2.default('p', NO_ATTRIBUTES, NO_EVENTS, [new _Text2.default('Please sign in.')])]);
+	  return new _Element2.default('div', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, activeUser ? [new _Element2.default('p', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default('Welcome ' + activeUser.name + '.')]), renderItems(activeItems)] : [new _Element2.default('p', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default('Please sign in.')])]);
 	}
 	
 	function renderItems(items) {
-	  return new _Element2.default('ol', NO_ATTRIBUTES, NO_EVENTS, items.map(item => new _Element2.default('li', { 'data-key': item.id }, NO_EVENTS, [new _Text2.default(item.title)])));
+	  return new _Element2.default('ol', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, items.map(item => new _Element2.default('li', { 'data-key': item.id }, _NO_EVENTS2.default, [new _Text2.default(item.title)])));
 	}
 	
-	function render() {
-	  const desired = new _Element2.default('div', { id: 'root', class: 'container' }, NO_EVENTS, [renderSignInForm(_data2.default), renderActiveSessionForm(_data2.default), renderActiveUser(_data2.default), new _Element2.default('span', NO_ATTRIBUTES, NO_EVENTS, [new _Text2.default(new Date().toString())])]);
-	
-	  reconcile(getRoot().parentNode, actual, desired);
-	
-	  actual = desired;
-	}
+	let actual = (0, _domToVirtualDom2.default)(document.getElementById('root'));
 	
 	render();
 	// setInterval(render, 1000)
+	
+	function render() {
+	  const desired = new _Element2.default('div', { id: 'root', class: 'container' }, _NO_EVENTS2.default, [renderSignInForm(_data2.default), renderActiveSessionForm(_data2.default), renderActiveUser(_data2.default), new _Element2.default('span', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default(new Date().toString())])]);
+	
+	  desired.children.push(new _Element2.default('pre', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default((0, _virtualDomToHtml2.default)(desired))]));
+	
+	  (0, _reconcile2.default)(actual.element.parentNode, actual, desired);
+	
+	  actual = desired;
+	}
 
 /***/ },
 /* 1 */
@@ -596,11 +482,15 @@
 	
 	var _util = __webpack_require__(7);
 	
+	var _expectString = __webpack_require__(17);
+	
+	var _expectString2 = _interopRequireDefault(_expectString);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function Element(tag, attributes, events, children) {
 	  _Node2.default.call(this, children);
-	  this.tag = (0, _util.expectString)(tag);
+	  this.tag = (0, _expectString2.default)(tag);
 	  this.attributes = Object.keys((0, _util.expectAttributes)(attributes)).reduce((map, key) => {
 	    const value = attributes[key];
 	    if (typeof value === 'string') map[key] = value;else if (value === true) map[key] = '';
@@ -618,19 +508,6 @@
 	    configurable: true
 	  }
 	});
-	
-	Element.prototype.toString = function () {
-	  const tag = this.tag;
-	  const attributes = this.attributes;
-	  const children = this.children;
-	
-	
-	  const a = Object.keys(attributes).map(key => `${ key }="${ attributes[key] }"`).join(' ');
-	
-	  const c = children.map(child => '\t' + child.toString()).join('\n');
-	
-	  return `<${ tag } ${ a }>\n${ c }\n</${ tag }>`;
-	};
 	
 	Element.prototype.mount = function (parent, before) {
 	  const tag = this.tag;
@@ -698,20 +575,10 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.isArray = undefined;
 	exports.stringify = stringify;
-	exports.isObject = isObject;
-	exports.expectObject = expectObject;
-	exports.isString = isString;
-	exports.expectString = expectString;
-	exports.expectArray = expectArray;
-	exports.isFunction = isFunction;
-	exports.expectFunction = expectFunction;
 	exports.isNode = isNode;
 	exports.expectNode = expectNode;
 	exports.expectAttributes = expectAttributes;
-	exports.isBoolean = isBoolean;
-	exports.isUndefined = isUndefined;
 	exports.expectAttributeValue = expectAttributeValue;
 	exports.expectEvents = expectEvents;
 	exports.expectChildren = expectChildren;
@@ -720,44 +587,50 @@
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
+	var _isArray = __webpack_require__(8);
+	
+	var _isArray2 = _interopRequireDefault(_isArray);
+	
+	var _isObject = __webpack_require__(9);
+	
+	var _isObject2 = _interopRequireDefault(_isObject);
+	
+	var _expectObject = __webpack_require__(10);
+	
+	var _expectObject2 = _interopRequireDefault(_expectObject);
+	
+	var _isString = __webpack_require__(16);
+	
+	var _isString2 = _interopRequireDefault(_isString);
+	
+	var _expectString = __webpack_require__(17);
+	
+	var _expectString2 = _interopRequireDefault(_expectString);
+	
+	var _expectArray = __webpack_require__(18);
+	
+	var _expectArray2 = _interopRequireDefault(_expectArray);
+	
+	var _isFunction = __webpack_require__(19);
+	
+	var _isFunction2 = _interopRequireDefault(_isFunction);
+	
+	var _expectFunction = __webpack_require__(20);
+	
+	var _expectFunction2 = _interopRequireDefault(_expectFunction);
+	
+	var _isBoolean = __webpack_require__(21);
+	
+	var _isBoolean2 = _interopRequireDefault(_isBoolean);
+	
+	var _isUndefined = __webpack_require__(22);
+	
+	var _isUndefined2 = _interopRequireDefault(_isUndefined);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function stringify(value) {
 	  return JSON.stringify(value);
-	}
-	
-	const isArray = exports.isArray = Array.isArray;
-	
-	function isObject(value) {
-	  return typeof value === 'object' && value !== null;
-	}
-	
-	function expectObject(value) {
-	  if (!isObject(value)) throw new TypeError(`Expected an object but got ${ stringify(value) }.`);
-	  return value;
-	}
-	
-	function isString(value) {
-	  return typeof value === 'string';
-	}
-	
-	function expectString(value) {
-	  if (!isString(value)) throw new TypeError(`Expected a string but got ${ stringify(value) }.`);
-	  return value;
-	}
-	
-	function expectArray(value) {
-	  if (!isArray(value)) throw new TypeError(`Expected an array but got ${ stringify(value) }.`);
-	  return value;
-	}
-	
-	function isFunction(value) {
-	  return typeof value === 'function';
-	}
-	
-	function expectFunction(value) {
-	  if (!isFunction(value)) throw new TypeError(`Expected a function but got ${ stringify(value) }.`);
-	  return value;
 	}
 	
 	function isNode(value) {
@@ -770,38 +643,30 @@
 	}
 	
 	function expectAttributes(value) {
-	  expectObject(value);
+	  (0, _expectObject2.default)(value);
 	  Object.keys(value).forEach(key => {
-	    expectString(key);
+	    (0, _expectString2.default)(key);
 	    expectAttributeValue(value[key]);
 	  });
 	  return value;
 	}
 	
-	function isBoolean(value) {
-	  return typeof value === 'boolean';
-	}
-	
-	function isUndefined(value) {
-	  return value === void 0;
-	}
-	
 	function expectAttributeValue(value) {
-	  if (!(isString(value) || isBoolean(value) || isUndefined(value))) throw new TypeError(`Expected attribute value to be a string, boolean or undefined but got ${ stringify(value) }.`);
+	  if (!((0, _isString2.default)(value) || (0, _isBoolean2.default)(value) || (0, _isUndefined2.default)(value))) throw new TypeError(`Expected attribute value to be a string, boolean or undefined but got ${ stringify(value) }.`);
 	  return value;
 	}
 	
 	function expectEvents(value) {
-	  expectObject(value);
+	  (0, _expectObject2.default)(value);
 	  Object.keys(value).forEach(key => {
-	    expectString(key);
-	    expectFunction(value[key]);
+	    (0, _expectString2.default)(key);
+	    (0, _expectFunction2.default)(value[key]);
 	  });
 	  return value;
 	}
 	
 	function expectChildren(value) {
-	  expectArray(value);
+	  (0, _expectArray2.default)(value);
 	  value.forEach(child => {
 	    expectNode(child);
 	  });
@@ -810,6 +675,1117 @@
 
 /***/ },
 /* 8 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/*************************************************************************
+	 * This file has been automatically generated, do not edit this directly *
+	 *************************************************************************/
+	
+	const objectToString = Object.prototype.toString;
+	
+	exports.default = Array.isArray ? Array.isArray :
+	/**
+	 * Returns true if value is a Array, false otherwise.
+	 * @param value The value.
+	 * @return  Returns the result of the comparison.
+	 */
+	function isArray(value) {
+	  return objectToString.call(value) === '[object Array]';
+	};
+	//# sourceMappingURL=isArray.js.map
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isObject;
+	/*************************************************************************
+	 * This file has been automatically generated, do not edit this directly *
+	 *************************************************************************/
+	
+	/**
+	 * Returns true if value is an object, false otherwise.
+	 * @param value The value.
+	 * @return  Returns the result of the comparison.
+	 */
+	function isObject(value) {
+	  return typeof value === 'object' && value !== null;
+	}
+	//# sourceMappingURL=isObject.js.map
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = expectObject;
+	
+	var _inspect = __webpack_require__(11);
+	
+	var _inspect2 = _interopRequireDefault(_inspect);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * Throws an exception when value is not an object.
+	 * @param value The value.
+	 * @return Returns the passed value.
+	 */
+	function expectObject(value) {
+	  if (typeof value === 'object' && value !== null) return value;
+	  throw new Error(`Expected ${ (0, _inspect2.default)(value) } to be an object.`);
+	} /*************************************************************************
+	   * This file has been automatically generated, do not edit this directly *
+	   *************************************************************************/
+	//# sourceMappingURL=expectObject.js.map
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _util = __webpack_require__(12);
+	
+	Object.defineProperty(exports, 'default', {
+	  enumerable: true,
+	  get: function get() {
+	    return _util.inspect;
+	  }
+	});
+	//# sourceMappingURL=inspect.js.map
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
+	//
+	// Permission is hereby granted, free of charge, to any person obtaining a
+	// copy of this software and associated documentation files (the
+	// "Software"), to deal in the Software without restriction, including
+	// without limitation the rights to use, copy, modify, merge, publish,
+	// distribute, sublicense, and/or sell copies of the Software, and to permit
+	// persons to whom the Software is furnished to do so, subject to the
+	// following conditions:
+	//
+	// The above copyright notice and this permission notice shall be included
+	// in all copies or substantial portions of the Software.
+	//
+	// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+	// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+	// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+	// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+	// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+	// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+	// USE OR OTHER DEALINGS IN THE SOFTWARE.
+	
+	var formatRegExp = /%[sdj%]/g;
+	exports.format = function(f) {
+	  if (!isString(f)) {
+	    var objects = [];
+	    for (var i = 0; i < arguments.length; i++) {
+	      objects.push(inspect(arguments[i]));
+	    }
+	    return objects.join(' ');
+	  }
+	
+	  var i = 1;
+	  var args = arguments;
+	  var len = args.length;
+	  var str = String(f).replace(formatRegExp, function(x) {
+	    if (x === '%%') return '%';
+	    if (i >= len) return x;
+	    switch (x) {
+	      case '%s': return String(args[i++]);
+	      case '%d': return Number(args[i++]);
+	      case '%j':
+	        try {
+	          return JSON.stringify(args[i++]);
+	        } catch (_) {
+	          return '[Circular]';
+	        }
+	      default:
+	        return x;
+	    }
+	  });
+	  for (var x = args[i]; i < len; x = args[++i]) {
+	    if (isNull(x) || !isObject(x)) {
+	      str += ' ' + x;
+	    } else {
+	      str += ' ' + inspect(x);
+	    }
+	  }
+	  return str;
+	};
+	
+	
+	// Mark that a method should not be used.
+	// Returns a modified function which warns once by default.
+	// If --no-deprecation is set, then it is a no-op.
+	exports.deprecate = function(fn, msg) {
+	  // Allow for deprecating things in the process of starting up.
+	  if (isUndefined(global.process)) {
+	    return function() {
+	      return exports.deprecate(fn, msg).apply(this, arguments);
+	    };
+	  }
+	
+	  if (process.noDeprecation === true) {
+	    return fn;
+	  }
+	
+	  var warned = false;
+	  function deprecated() {
+	    if (!warned) {
+	      if (process.throwDeprecation) {
+	        throw new Error(msg);
+	      } else if (process.traceDeprecation) {
+	        console.trace(msg);
+	      } else {
+	        console.error(msg);
+	      }
+	      warned = true;
+	    }
+	    return fn.apply(this, arguments);
+	  }
+	
+	  return deprecated;
+	};
+	
+	
+	var debugs = {};
+	var debugEnviron;
+	exports.debuglog = function(set) {
+	  if (isUndefined(debugEnviron))
+	    debugEnviron = process.env.NODE_DEBUG || '';
+	  set = set.toUpperCase();
+	  if (!debugs[set]) {
+	    if (new RegExp('\\b' + set + '\\b', 'i').test(debugEnviron)) {
+	      var pid = process.pid;
+	      debugs[set] = function() {
+	        var msg = exports.format.apply(exports, arguments);
+	        console.error('%s %d: %s', set, pid, msg);
+	      };
+	    } else {
+	      debugs[set] = function() {};
+	    }
+	  }
+	  return debugs[set];
+	};
+	
+	
+	/**
+	 * Echos the value of a value. Trys to print the value out
+	 * in the best way possible given the different types.
+	 *
+	 * @param {Object} obj The object to print out.
+	 * @param {Object} opts Optional options object that alters the output.
+	 */
+	/* legacy: obj, showHidden, depth, colors*/
+	function inspect(obj, opts) {
+	  // default options
+	  var ctx = {
+	    seen: [],
+	    stylize: stylizeNoColor
+	  };
+	  // legacy...
+	  if (arguments.length >= 3) ctx.depth = arguments[2];
+	  if (arguments.length >= 4) ctx.colors = arguments[3];
+	  if (isBoolean(opts)) {
+	    // legacy...
+	    ctx.showHidden = opts;
+	  } else if (opts) {
+	    // got an "options" object
+	    exports._extend(ctx, opts);
+	  }
+	  // set default options
+	  if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+	  if (isUndefined(ctx.depth)) ctx.depth = 2;
+	  if (isUndefined(ctx.colors)) ctx.colors = false;
+	  if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+	  if (ctx.colors) ctx.stylize = stylizeWithColor;
+	  return formatValue(ctx, obj, ctx.depth);
+	}
+	exports.inspect = inspect;
+	
+	
+	// http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+	inspect.colors = {
+	  'bold' : [1, 22],
+	  'italic' : [3, 23],
+	  'underline' : [4, 24],
+	  'inverse' : [7, 27],
+	  'white' : [37, 39],
+	  'grey' : [90, 39],
+	  'black' : [30, 39],
+	  'blue' : [34, 39],
+	  'cyan' : [36, 39],
+	  'green' : [32, 39],
+	  'magenta' : [35, 39],
+	  'red' : [31, 39],
+	  'yellow' : [33, 39]
+	};
+	
+	// Don't use 'blue' not visible on cmd.exe
+	inspect.styles = {
+	  'special': 'cyan',
+	  'number': 'yellow',
+	  'boolean': 'yellow',
+	  'undefined': 'grey',
+	  'null': 'bold',
+	  'string': 'green',
+	  'date': 'magenta',
+	  // "name": intentionally not styling
+	  'regexp': 'red'
+	};
+	
+	
+	function stylizeWithColor(str, styleType) {
+	  var style = inspect.styles[styleType];
+	
+	  if (style) {
+	    return '\u001b[' + inspect.colors[style][0] + 'm' + str +
+	           '\u001b[' + inspect.colors[style][1] + 'm';
+	  } else {
+	    return str;
+	  }
+	}
+	
+	
+	function stylizeNoColor(str, styleType) {
+	  return str;
+	}
+	
+	
+	function arrayToHash(array) {
+	  var hash = {};
+	
+	  array.forEach(function(val, idx) {
+	    hash[val] = true;
+	  });
+	
+	  return hash;
+	}
+	
+	
+	function formatValue(ctx, value, recurseTimes) {
+	  // Provide a hook for user-specified inspect functions.
+	  // Check that value is an object with an inspect function on it
+	  if (ctx.customInspect &&
+	      value &&
+	      isFunction(value.inspect) &&
+	      // Filter out the util module, it's inspect function is special
+	      value.inspect !== exports.inspect &&
+	      // Also filter out any prototype objects using the circular check.
+	      !(value.constructor && value.constructor.prototype === value)) {
+	    var ret = value.inspect(recurseTimes, ctx);
+	    if (!isString(ret)) {
+	      ret = formatValue(ctx, ret, recurseTimes);
+	    }
+	    return ret;
+	  }
+	
+	  // Primitive types cannot have properties
+	  var primitive = formatPrimitive(ctx, value);
+	  if (primitive) {
+	    return primitive;
+	  }
+	
+	  // Look up the keys of the object.
+	  var keys = Object.keys(value);
+	  var visibleKeys = arrayToHash(keys);
+	
+	  if (ctx.showHidden) {
+	    keys = Object.getOwnPropertyNames(value);
+	  }
+	
+	  // IE doesn't make error fields non-enumerable
+	  // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+	  if (isError(value)
+	      && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+	    return formatError(value);
+	  }
+	
+	  // Some type of object without properties can be shortcutted.
+	  if (keys.length === 0) {
+	    if (isFunction(value)) {
+	      var name = value.name ? ': ' + value.name : '';
+	      return ctx.stylize('[Function' + name + ']', 'special');
+	    }
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    }
+	    if (isDate(value)) {
+	      return ctx.stylize(Date.prototype.toString.call(value), 'date');
+	    }
+	    if (isError(value)) {
+	      return formatError(value);
+	    }
+	  }
+	
+	  var base = '', array = false, braces = ['{', '}'];
+	
+	  // Make Array say that they are Array
+	  if (isArray(value)) {
+	    array = true;
+	    braces = ['[', ']'];
+	  }
+	
+	  // Make functions say that they are functions
+	  if (isFunction(value)) {
+	    var n = value.name ? ': ' + value.name : '';
+	    base = ' [Function' + n + ']';
+	  }
+	
+	  // Make RegExps say that they are RegExps
+	  if (isRegExp(value)) {
+	    base = ' ' + RegExp.prototype.toString.call(value);
+	  }
+	
+	  // Make dates with properties first say the date
+	  if (isDate(value)) {
+	    base = ' ' + Date.prototype.toUTCString.call(value);
+	  }
+	
+	  // Make error with message first say the error
+	  if (isError(value)) {
+	    base = ' ' + formatError(value);
+	  }
+	
+	  if (keys.length === 0 && (!array || value.length == 0)) {
+	    return braces[0] + base + braces[1];
+	  }
+	
+	  if (recurseTimes < 0) {
+	    if (isRegExp(value)) {
+	      return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+	    } else {
+	      return ctx.stylize('[Object]', 'special');
+	    }
+	  }
+	
+	  ctx.seen.push(value);
+	
+	  var output;
+	  if (array) {
+	    output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+	  } else {
+	    output = keys.map(function(key) {
+	      return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+	    });
+	  }
+	
+	  ctx.seen.pop();
+	
+	  return reduceToSingleString(output, base, braces);
+	}
+	
+	
+	function formatPrimitive(ctx, value) {
+	  if (isUndefined(value))
+	    return ctx.stylize('undefined', 'undefined');
+	  if (isString(value)) {
+	    var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '')
+	                                             .replace(/'/g, "\\'")
+	                                             .replace(/\\"/g, '"') + '\'';
+	    return ctx.stylize(simple, 'string');
+	  }
+	  if (isNumber(value))
+	    return ctx.stylize('' + value, 'number');
+	  if (isBoolean(value))
+	    return ctx.stylize('' + value, 'boolean');
+	  // For some reason typeof null is "object", so special case here.
+	  if (isNull(value))
+	    return ctx.stylize('null', 'null');
+	}
+	
+	
+	function formatError(value) {
+	  return '[' + Error.prototype.toString.call(value) + ']';
+	}
+	
+	
+	function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+	  var output = [];
+	  for (var i = 0, l = value.length; i < l; ++i) {
+	    if (hasOwnProperty(value, String(i))) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          String(i), true));
+	    } else {
+	      output.push('');
+	    }
+	  }
+	  keys.forEach(function(key) {
+	    if (!key.match(/^\d+$/)) {
+	      output.push(formatProperty(ctx, value, recurseTimes, visibleKeys,
+	          key, true));
+	    }
+	  });
+	  return output;
+	}
+	
+	
+	function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+	  var name, str, desc;
+	  desc = Object.getOwnPropertyDescriptor(value, key) || { value: value[key] };
+	  if (desc.get) {
+	    if (desc.set) {
+	      str = ctx.stylize('[Getter/Setter]', 'special');
+	    } else {
+	      str = ctx.stylize('[Getter]', 'special');
+	    }
+	  } else {
+	    if (desc.set) {
+	      str = ctx.stylize('[Setter]', 'special');
+	    }
+	  }
+	  if (!hasOwnProperty(visibleKeys, key)) {
+	    name = '[' + key + ']';
+	  }
+	  if (!str) {
+	    if (ctx.seen.indexOf(desc.value) < 0) {
+	      if (isNull(recurseTimes)) {
+	        str = formatValue(ctx, desc.value, null);
+	      } else {
+	        str = formatValue(ctx, desc.value, recurseTimes - 1);
+	      }
+	      if (str.indexOf('\n') > -1) {
+	        if (array) {
+	          str = str.split('\n').map(function(line) {
+	            return '  ' + line;
+	          }).join('\n').substr(2);
+	        } else {
+	          str = '\n' + str.split('\n').map(function(line) {
+	            return '   ' + line;
+	          }).join('\n');
+	        }
+	      }
+	    } else {
+	      str = ctx.stylize('[Circular]', 'special');
+	    }
+	  }
+	  if (isUndefined(name)) {
+	    if (array && key.match(/^\d+$/)) {
+	      return str;
+	    }
+	    name = JSON.stringify('' + key);
+	    if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+	      name = name.substr(1, name.length - 2);
+	      name = ctx.stylize(name, 'name');
+	    } else {
+	      name = name.replace(/'/g, "\\'")
+	                 .replace(/\\"/g, '"')
+	                 .replace(/(^"|"$)/g, "'");
+	      name = ctx.stylize(name, 'string');
+	    }
+	  }
+	
+	  return name + ': ' + str;
+	}
+	
+	
+	function reduceToSingleString(output, base, braces) {
+	  var numLinesEst = 0;
+	  var length = output.reduce(function(prev, cur) {
+	    numLinesEst++;
+	    if (cur.indexOf('\n') >= 0) numLinesEst++;
+	    return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+	  }, 0);
+	
+	  if (length > 60) {
+	    return braces[0] +
+	           (base === '' ? '' : base + '\n ') +
+	           ' ' +
+	           output.join(',\n  ') +
+	           ' ' +
+	           braces[1];
+	  }
+	
+	  return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+	}
+	
+	
+	// NOTE: These type checking functions intentionally don't use `instanceof`
+	// because it is fragile and can be easily faked with `Object.create()`.
+	function isArray(ar) {
+	  return Array.isArray(ar);
+	}
+	exports.isArray = isArray;
+	
+	function isBoolean(arg) {
+	  return typeof arg === 'boolean';
+	}
+	exports.isBoolean = isBoolean;
+	
+	function isNull(arg) {
+	  return arg === null;
+	}
+	exports.isNull = isNull;
+	
+	function isNullOrUndefined(arg) {
+	  return arg == null;
+	}
+	exports.isNullOrUndefined = isNullOrUndefined;
+	
+	function isNumber(arg) {
+	  return typeof arg === 'number';
+	}
+	exports.isNumber = isNumber;
+	
+	function isString(arg) {
+	  return typeof arg === 'string';
+	}
+	exports.isString = isString;
+	
+	function isSymbol(arg) {
+	  return typeof arg === 'symbol';
+	}
+	exports.isSymbol = isSymbol;
+	
+	function isUndefined(arg) {
+	  return arg === void 0;
+	}
+	exports.isUndefined = isUndefined;
+	
+	function isRegExp(re) {
+	  return isObject(re) && objectToString(re) === '[object RegExp]';
+	}
+	exports.isRegExp = isRegExp;
+	
+	function isObject(arg) {
+	  return typeof arg === 'object' && arg !== null;
+	}
+	exports.isObject = isObject;
+	
+	function isDate(d) {
+	  return isObject(d) && objectToString(d) === '[object Date]';
+	}
+	exports.isDate = isDate;
+	
+	function isError(e) {
+	  return isObject(e) &&
+	      (objectToString(e) === '[object Error]' || e instanceof Error);
+	}
+	exports.isError = isError;
+	
+	function isFunction(arg) {
+	  return typeof arg === 'function';
+	}
+	exports.isFunction = isFunction;
+	
+	function isPrimitive(arg) {
+	  return arg === null ||
+	         typeof arg === 'boolean' ||
+	         typeof arg === 'number' ||
+	         typeof arg === 'string' ||
+	         typeof arg === 'symbol' ||  // ES6 symbol
+	         typeof arg === 'undefined';
+	}
+	exports.isPrimitive = isPrimitive;
+	
+	exports.isBuffer = __webpack_require__(14);
+	
+	function objectToString(o) {
+	  return Object.prototype.toString.call(o);
+	}
+	
+	
+	function pad(n) {
+	  return n < 10 ? '0' + n.toString(10) : n.toString(10);
+	}
+	
+	
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+	              'Oct', 'Nov', 'Dec'];
+	
+	// 26 Feb 16:19:34
+	function timestamp() {
+	  var d = new Date();
+	  var time = [pad(d.getHours()),
+	              pad(d.getMinutes()),
+	              pad(d.getSeconds())].join(':');
+	  return [d.getDate(), months[d.getMonth()], time].join(' ');
+	}
+	
+	
+	// log is just a thin wrapper to console.log that prepends a timestamp
+	exports.log = function() {
+	  console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+	};
+	
+	
+	/**
+	 * Inherit the prototype methods from one constructor into another.
+	 *
+	 * The Function.prototype.inherits from lang.js rewritten as a standalone
+	 * function (not on Function.prototype). NOTE: If this file is to be loaded
+	 * during bootstrapping this function needs to be rewritten using some native
+	 * functions as prototype setup using normal JavaScript does not work as
+	 * expected during bootstrapping (see mirror.js in r114903).
+	 *
+	 * @param {function} ctor Constructor function which needs to inherit the
+	 *     prototype.
+	 * @param {function} superCtor Constructor function to inherit prototype from.
+	 */
+	exports.inherits = __webpack_require__(15);
+	
+	exports._extend = function(origin, add) {
+	  // Don't do anything if add isn't an object
+	  if (!add || !isObject(add)) return origin;
+	
+	  var keys = Object.keys(add);
+	  var i = keys.length;
+	  while (i--) {
+	    origin[keys[i]] = add[keys[i]];
+	  }
+	  return origin;
+	};
+	
+	function hasOwnProperty(obj, prop) {
+	  return Object.prototype.hasOwnProperty.call(obj, prop);
+	}
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(13)))
+
+/***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	// shim for using process in browser
+	var process = module.exports = {};
+	
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
+	
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+	
+	function defaultSetTimout() {
+	    throw new Error('setTimeout has not been defined');
+	}
+	function defaultClearTimeout () {
+	    throw new Error('clearTimeout has not been defined');
+	}
+	(function () {
+	    try {
+	        if (typeof setTimeout === 'function') {
+	            cachedSetTimeout = setTimeout;
+	        } else {
+	            cachedSetTimeout = defaultSetTimout;
+	        }
+	    } catch (e) {
+	        cachedSetTimeout = defaultSetTimout;
+	    }
+	    try {
+	        if (typeof clearTimeout === 'function') {
+	            cachedClearTimeout = clearTimeout;
+	        } else {
+	            cachedClearTimeout = defaultClearTimeout;
+	        }
+	    } catch (e) {
+	        cachedClearTimeout = defaultClearTimeout;
+	    }
+	} ())
+	function runTimeout(fun) {
+	    if (cachedSetTimeout === setTimeout) {
+	        //normal enviroments in sane situations
+	        return setTimeout(fun, 0);
+	    }
+	    // if setTimeout wasn't available but was latter defined
+	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+	        cachedSetTimeout = setTimeout;
+	        return setTimeout(fun, 0);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedSetTimeout(fun, 0);
+	    } catch(e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+	            return cachedSetTimeout.call(null, fun, 0);
+	        } catch(e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+	            return cachedSetTimeout.call(this, fun, 0);
+	        }
+	    }
+	
+	
+	}
+	function runClearTimeout(marker) {
+	    if (cachedClearTimeout === clearTimeout) {
+	        //normal enviroments in sane situations
+	        return clearTimeout(marker);
+	    }
+	    // if clearTimeout wasn't available but was latter defined
+	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+	        cachedClearTimeout = clearTimeout;
+	        return clearTimeout(marker);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedClearTimeout(marker);
+	    } catch (e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+	            return cachedClearTimeout.call(null, marker);
+	        } catch (e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+	            return cachedClearTimeout.call(this, marker);
+	        }
+	    }
+	
+	
+	
+	}
+	var queue = [];
+	var draining = false;
+	var currentQueue;
+	var queueIndex = -1;
+	
+	function cleanUpNextTick() {
+	    if (!draining || !currentQueue) {
+	        return;
+	    }
+	    draining = false;
+	    if (currentQueue.length) {
+	        queue = currentQueue.concat(queue);
+	    } else {
+	        queueIndex = -1;
+	    }
+	    if (queue.length) {
+	        drainQueue();
+	    }
+	}
+	
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    var timeout = runTimeout(cleanUpNextTick);
+	    draining = true;
+	
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        while (++queueIndex < len) {
+	            if (currentQueue) {
+	                currentQueue[queueIndex].run();
+	            }
+	        }
+	        queueIndex = -1;
+	        len = queue.length;
+	    }
+	    currentQueue = null;
+	    draining = false;
+	    runClearTimeout(timeout);
+	}
+	
+	process.nextTick = function (fun) {
+	    var args = new Array(arguments.length - 1);
+	    if (arguments.length > 1) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            args[i - 1] = arguments[i];
+	        }
+	    }
+	    queue.push(new Item(fun, args));
+	    if (queue.length === 1 && !draining) {
+	        runTimeout(drainQueue);
+	    }
+	};
+	
+	// v8 likes predictible objects
+	function Item(fun, array) {
+	    this.fun = fun;
+	    this.array = array;
+	}
+	Item.prototype.run = function () {
+	    this.fun.apply(null, this.array);
+	};
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+	
+	function noop() {}
+	
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+	
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+	
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	module.exports = function isBuffer(arg) {
+	  return arg && typeof arg === 'object'
+	    && typeof arg.copy === 'function'
+	    && typeof arg.fill === 'function'
+	    && typeof arg.readUInt8 === 'function';
+	}
+
+/***/ },
+/* 15 */
+/***/ function(module, exports) {
+
+	if (typeof Object.create === 'function') {
+	  // implementation from standard node.js 'util' module
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    ctor.prototype = Object.create(superCtor.prototype, {
+	      constructor: {
+	        value: ctor,
+	        enumerable: false,
+	        writable: true,
+	        configurable: true
+	      }
+	    });
+	  };
+	} else {
+	  // old school shim for old browsers
+	  module.exports = function inherits(ctor, superCtor) {
+	    ctor.super_ = superCtor
+	    var TempCtor = function () {}
+	    TempCtor.prototype = superCtor.prototype
+	    ctor.prototype = new TempCtor()
+	    ctor.prototype.constructor = ctor
+	  }
+	}
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isString;
+	/*************************************************************************
+	 * This file has been automatically generated, do not edit this directly *
+	 *************************************************************************/
+	
+	/**
+	 * Returns true if value is a string, false otherwise.
+	 * @param value The value.
+	 * @return  Returns the result of the comparison.
+	 */
+	function isString(value) {
+	  return typeof value === 'string';
+	}
+	//# sourceMappingURL=isString.js.map
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = expectString;
+	
+	var _inspect = __webpack_require__(11);
+	
+	var _inspect2 = _interopRequireDefault(_inspect);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * Throws an exception when value is not a string.
+	 * @param value The value.
+	 * @return Returns the passed value.
+	 */
+	function expectString(value) {
+	  if (typeof value === 'string') return value;
+	  throw new Error(`Expected ${ (0, _inspect2.default)(value) } to be a string.`);
+	} /*************************************************************************
+	   * This file has been automatically generated, do not edit this directly *
+	   *************************************************************************/
+	//# sourceMappingURL=expectString.js.map
+
+/***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = expectArray;
+	
+	var _inspect = __webpack_require__(11);
+	
+	var _inspect2 = _interopRequireDefault(_inspect);
+	
+	var _isArray = __webpack_require__(8);
+	
+	var _isArray2 = _interopRequireDefault(_isArray);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * Throws an exception when value is not a Array.
+	 * @param value The value.
+	 * @return Returns the passed value.
+	 */
+	/*************************************************************************
+	 * This file has been automatically generated, do not edit this directly *
+	 *************************************************************************/
+	
+	function expectArray(value) {
+	  if ((0, _isArray2.default)(value)) return value;
+	  throw new Error(`Expected ${ (0, _inspect2.default)(value) } to be a Array.`);
+	}
+	//# sourceMappingURL=expectArray.js.map
+
+/***/ },
+/* 19 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isFunction;
+	/*************************************************************************
+	 * This file has been automatically generated, do not edit this directly *
+	 *************************************************************************/
+	
+	/**
+	 * Returns true if value is a function, false otherwise.
+	 * @param value The value.
+	 * @return  Returns the result of the comparison.
+	 */
+	function isFunction(value) {
+	  return typeof value === 'function';
+	}
+	//# sourceMappingURL=isFunction.js.map
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = expectFunction;
+	
+	var _inspect = __webpack_require__(11);
+	
+	var _inspect2 = _interopRequireDefault(_inspect);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/**
+	 * Throws an exception when value is not a function.
+	 * @param value The value.
+	 * @return Returns the passed value.
+	 */
+	function expectFunction(value) {
+	  if (typeof value === 'function') return value;
+	  throw new Error(`Expected ${ (0, _inspect2.default)(value) } to be a function.`);
+	} /*************************************************************************
+	   * This file has been automatically generated, do not edit this directly *
+	   *************************************************************************/
+	//# sourceMappingURL=expectFunction.js.map
+
+/***/ },
+/* 21 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isBoolean;
+	/*************************************************************************
+	 * This file has been automatically generated, do not edit this directly *
+	 *************************************************************************/
+	
+	/**
+	 * Returns true if value is true or false, false otherwise.
+	 * @param value The value.
+	 * @return  Returns the result of the comparison.
+	 */
+	function isBoolean(value) {
+	  return typeof value === 'boolean';
+	}
+	//# sourceMappingURL=isBoolean.js.map
+
+/***/ },
+/* 22 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = isUndefined;
+	/*************************************************************************
+	 * This file has been automatically generated, do not edit this directly *
+	 *************************************************************************/
+	
+	/**
+	 * Returns true if value is undefined, false otherwise.
+	 * @param value The value.
+	 * @return  Returns the result of the comparison.
+	 */
+	function isUndefined(value) {
+	  return value === void 0;
+	}
+	//# sourceMappingURL=isUndefined.js.map
+
+/***/ },
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -839,10 +1815,6 @@
 	  }
 	});
 	
-	Text.prototype.toString = function () {
-	  return `"${ this.text }"`;
-	};
-	
 	Text.prototype.mount = function (parent, before) {
 	  const element = this.element = document.createTextNode(this.text);
 	
@@ -854,6 +1826,343 @@
 	    parent.appendChild(element);
 	  }
 	};
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = domToVirtualDom;
+	
+	var _Comment = __webpack_require__(25);
+	
+	var _Comment2 = _interopRequireDefault(_Comment);
+	
+	var _Text = __webpack_require__(23);
+	
+	var _Text2 = _interopRequireDefault(_Text);
+	
+	var _Element = __webpack_require__(5);
+	
+	var _Element2 = _interopRequireDefault(_Element);
+	
+	var _NO_EVENTS = __webpack_require__(26);
+	
+	var _NO_EVENTS2 = _interopRequireDefault(_NO_EVENTS);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/* eslint-env browser */
+	
+	function extractAttributes(node) {
+	  const attributes = {};
+	  for (let i = 0, a = node.attributes, l = a.length; i < l; i++) {
+	    var _a$i = a[i];
+	    const name = _a$i.name;
+	    const value = _a$i.value;
+	
+	    attributes[name] = value;
+	  }
+	  return attributes;
+	}
+	
+	function domToVirtualDom(node) {
+	  let vnode;
+	  switch (node.nodeType) {
+	    case Node.COMMENT_NODE:
+	      vnode = new _Comment2.default(node.nodeValue);
+	      break;
+	    case Node.TEXT_NODE:
+	      vnode = new _Text2.default(node.nodeValue);
+	      break;
+	    case Node.ELEMENT_NODE:
+	      vnode = new _Element2.default(node.tagName.toLowerCase(), extractAttributes(node), _NO_EVENTS2.default, Array.prototype.map.call(node.childNodes, domToVirtualDom));
+	      break;
+	    default:
+	      throw new Error(`Cannot create virtual dom for node of type ${ node.nodeType }.`);
+	
+	  }
+	  vnode.element = node;
+	  return vnode;
+	}
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = Comment;
+	
+	var _Node = __webpack_require__(6);
+	
+	var _Node2 = _interopRequireDefault(_Node);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function Comment(text) {
+	  _Node2.default.call(this);
+	  this.text = text;
+	}
+	
+	Comment.prototype = Object.create(_Node2.default.prototype, {
+	  constructor: {
+	    value: Comment,
+	    writable: true,
+	    enumerable: false,
+	    configurable: true
+	  }
+	});
+	
+	Comment.prototype.mount = function (parent, before) {
+	  const element = document.createComment(this.text);
+	
+	  element['@@virtual'] = this;
+	
+	  if (before) {
+	    parent.insertBefore(element, before);
+	  } else {
+	    parent.appendChild(element);
+	  }
+	};
+
+/***/ },
+/* 26 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = {};
+
+/***/ },
+/* 27 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = virtualDomToHtml;
+	
+	var _Comment = __webpack_require__(25);
+	
+	var _Comment2 = _interopRequireDefault(_Comment);
+	
+	var _Text = __webpack_require__(23);
+	
+	var _Text2 = _interopRequireDefault(_Text);
+	
+	var _Element = __webpack_require__(5);
+	
+	var _Element2 = _interopRequireDefault(_Element);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function attributesToHtml(attributes) {
+	  const keys = Object.keys(attributes);
+	  if (keys.length === 0) return '';
+	  return keys.reduce((string, key) => `${ string } ${ key }="${ attributes[key] }"`, '');
+	}
+	
+	var shouldOmitClosingTag = {
+	  'area': true,
+	  'base': true,
+	  'br': true,
+	  'col': true,
+	  'embed': true,
+	  'hr': true,
+	  'img': true,
+	  'input': true,
+	  'keygen': true,
+	  'link': true,
+	  'meta': true,
+	  'param': true,
+	  'source': true,
+	  'track': true,
+	  'wbr': true
+	};
+	
+	function virtualDomToHtml(node) {
+	  let prefix = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+	
+	  switch (node.constructor) {
+	    case _Comment2.default:
+	      return `${ prefix }<!--${ node.text }-->\n`;
+	    case _Text2.default:
+	      return `${ prefix }${ node.text }\n`;
+	    case _Element2.default:
+	      return shouldOmitClosingTag[node.tag] && node.children.length === 0 ? `${ prefix }<${ node.tag }${ attributesToHtml(node.attributes) }/>\n` : `${ prefix }<${ node.tag }${ attributesToHtml(node.attributes) }>\n${ node.children.map(node => virtualDomToHtml(node, prefix + '  ')).join('') }${ prefix }</${ node.tag }>\n`;
+	  }
+	}
+
+/***/ },
+/* 28 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = {};
+
+/***/ },
+/* 29 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = [];
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = reconcile;
+	
+	var _Comment = __webpack_require__(25);
+	
+	var _Comment2 = _interopRequireDefault(_Comment);
+	
+	var _Element = __webpack_require__(5);
+	
+	var _Element2 = _interopRequireDefault(_Element);
+	
+	var _Text = __webpack_require__(23);
+	
+	var _Text2 = _interopRequireDefault(_Text);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function noop() {}
+	
+	function patchObjectShallow(actual, desired, _ref) {
+	  var _ref$add = _ref.add;
+	  let add = _ref$add === undefined ? noop : _ref$add;
+	  var _ref$update = _ref.update;
+	  let update = _ref$update === undefined ? noop : _ref$update;
+	  var _ref$remove = _ref.remove;
+	  let remove = _ref$remove === undefined ? noop : _ref$remove;
+	
+	  Object.keys(actual).forEach(key => {
+	    if (desired.hasOwnProperty(key)) {
+	      if (actual[key] === desired[key]) {
+	        // Property hasn't changed.
+	      } else {
+	        update(key, actual[key], desired[key]);
+	      }
+	    } else {
+	      remove(key, actual[key]);
+	    }
+	  });
+	  Object.keys(desired).forEach(key => {
+	    if (!actual.hasOwnProperty(key)) {
+	      // This has already been handled.
+	    } else {
+	      add(key, desired[key]);
+	    }
+	  });
+	}
+	
+	function reconcile(parent, actual, desired) {
+	  if (actual) {
+	    if (!actual.element) throw new Error('Expected actual to have an associated element.');
+	    if (desired) {
+	      // Proceed as normal.
+	    } else {
+	      // Remove actual.
+	      actual.unmount(parent);
+	      return;
+	    }
+	  } else {
+	    if (desired) {
+	      // Add desired.
+	      desired.mount(parent);
+	      return;
+	    } else {
+	      throw new Error('Cannot reconcile two non-existing nodes.');
+	    }
+	  }
+	
+	  const element = actual.element;
+	
+	  if (actual.constructor !== desired.constructor) {
+	    // Replace actual by desired.
+	    desired.mount(parent, element);
+	    actual.unmount(parent);
+	    return;
+	  }
+	
+	  switch (actual.constructor) {
+	    case _Element2.default:
+	      if (actual.tag !== desired.tag) {
+	        // Replace actual by desired.
+	        desired.mount(parent, element);
+	        actual.unmount(parent);
+	        return;
+	      } else {
+	        // Update the attributes.
+	        patchObjectShallow(actual.attributes, desired.attributes, {
+	          add: function add(key, desired) {
+	            element.setAttribute(key, desired);
+	          },
+	          update: function update(key, actual, desired) {
+	            element.setAttribute(key, desired);
+	          },
+	          remove: function remove(key) {
+	            element.removeAttribute(key);
+	          }
+	        });
+	
+	        // Update the events.
+	        patchObjectShallow(actual.events, desired.events, {
+	          add: function add(key, desired) {
+	            element.addEventListener(key, desired, false);
+	          },
+	          update: function update(key, actual, desired) {
+	            element.removeEventListener(key, actual, false);
+	            element.addEventListener(key, desired, false);
+	          },
+	          remove: function remove(key, actual) {
+	            element.removeEventListener(key, actual, false);
+	          }
+	        });
+	
+	        for (let i = 0, l = Math.max(actual.children.length, desired.children.length); i < l; i++) {
+	          reconcile(element, actual.children[i], desired.children[i]);
+	        }
+	
+	        desired.element = element;
+	      }
+	      break;
+	    case _Text2.default:
+	    case _Comment2.default:
+	      if (actual.text !== desired.text) {
+	        element.nodeValue = desired.text;
+	      }
+	      desired.element = element;
+	      break;
+	  }
+	}
 
 /***/ }
 /******/ ]);
