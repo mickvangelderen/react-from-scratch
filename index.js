@@ -46,160 +46,7 @@
 
 	'use strict';
 	
-	var _data = __webpack_require__(1);
-	
-	var _data2 = _interopRequireDefault(_data);
-	
-	var _Element = __webpack_require__(5);
-	
-	var _Element2 = _interopRequireDefault(_Element);
-	
-	var _Text = __webpack_require__(23);
-	
-	var _Text2 = _interopRequireDefault(_Text);
-	
-	var _domToVirtualDom = __webpack_require__(24);
-	
-	var _domToVirtualDom2 = _interopRequireDefault(_domToVirtualDom);
-	
-	var _virtualDomToHtml = __webpack_require__(27);
-	
-	var _virtualDomToHtml2 = _interopRequireDefault(_virtualDomToHtml);
-	
-	var _NO_ATTRIBUTES = __webpack_require__(28);
-	
-	var _NO_ATTRIBUTES2 = _interopRequireDefault(_NO_ATTRIBUTES);
-	
-	var _NO_EVENTS = __webpack_require__(26);
-	
-	var _NO_EVENTS2 = _interopRequireDefault(_NO_EVENTS);
-	
-	var _NO_CHILDREN = __webpack_require__(29);
-	
-	var _NO_CHILDREN2 = _interopRequireDefault(_NO_CHILDREN);
-	
-	var _reconcile = __webpack_require__(30);
-	
-	var _reconcile2 = _interopRequireDefault(_reconcile);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } } /* eslint-env browser */
-	
-	const ID_LENGTH = 6;
-	const ID_CHARACTERS = 'abcdefghijklmnopqrstuvwxyz0123456789';
-	const ID_CHARACTERS_LENGTH = ID_CHARACTERS.length;
-	
-	function generateId() {
-	  let id = '';
-	  for (let i = 0; i < ID_LENGTH; i++) {
-	    id = id + ID_CHARACTERS[Math.floor(Math.random() * ID_CHARACTERS_LENGTH)];
-	  }
-	  return id;
-	}
-	
-	function signInFormSubmit(event) {
-	  event.preventDefault();
-	
-	  setTimeout(function () {
-	    const user = {
-	      id: generateId(),
-	      name: _data2.default.username
-	    };
-	
-	    const session = {
-	      id: generateId(),
-	      userId: user.id,
-	      startDate: new Date().toISOString()
-	    };
-	
-	    _data2.default.users.push(user);
-	    _data2.default.sessions.push(session);
-	    _data2.default.username = '';
-	    _data2.default.password = '';
-	    _data2.default.activeSessionId = session.id;
-	    window.history.pushState(null, null, `${ location.pathname }?activeSessionId=${ _data2.default.activeSessionId }`);
-	    _data2.default.signInFormDisabled = false;
-	
-	    render();
-	  }, 1000);
-	
-	  _data2.default.signInFormDisabled = true;
-	
-	  render();
-	}
-	
-	function signInFormUsernameInput(event) {
-	  _data2.default.username = event.target.value;
-	
-	  if (_data2.default.username === '') {
-	    _data2.default.signInFormValidUsername = false;
-	  } else {
-	    _data2.default.signInFormValidUsername = true;
-	  }
-	
-	  render();
-	}
-	
-	function signInFormPasswordChange(event) {
-	  _data2.default.password = event.target.value;
-	
-	  render();
-	}
-	
-	function renderSignInForm(data) {
-	  return new _Element2.default('form', _NO_ATTRIBUTES2.default, { submit: signInFormSubmit }, [new _Element2.default('div', { class: ['form-group'].concat(_toConsumableArray(data.signInFormValidUsername ? ['has-success'] : ['has-error'])).join(' ') }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'username' }, _NO_EVENTS2.default, [new _Text2.default('Username')]), new _Element2.default('input', { type: 'text', class: 'form-control', id: 'username', placeholder: 'Username', value: data.username }, { input: signInFormUsernameInput }, _NO_CHILDREN2.default)].concat(_toConsumableArray(data.signInFormValidUsername ? [] : [new _Element2.default('span', { class: 'help-block' }, _NO_EVENTS2.default, [new _Text2.default('Please provide a username.')])]))), new _Element2.default('div', { class: 'form-group' }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'password' }, _NO_EVENTS2.default, [new _Text2.default('Password')]), new _Element2.default('input', { type: 'password', class: 'form-control', id: 'password', placeholder: 'Password', value: data.password }, { change: signInFormPasswordChange }, _NO_CHILDREN2.default)]), new _Element2.default('button', { class: 'btn btn-primary', type: 'submit', disabled: data.signInFormDisabled }, _NO_EVENTS2.default, [new _Text2.default('Sign In')])]);
-	}
-	
-	function activeSessionFormActiveSessionChange(event) {
-	  _data2.default.activeSessionId = event.target.value;
-	  window.history.pushState(null, null, `${ location.pathname }?activeSessionId=${ _data2.default.activeSessionId }`);
-	
-	  render();
-	}
-	
-	function renderActiveSessionForm(data) {
-	  return new _Element2.default('form', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Element2.default('div', { class: 'form-group' }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'active-session' }, _NO_EVENTS2.default, [new _Text2.default('Active Session')]), new _Element2.default('select', { class: 'form-control', id: 'active-session' }, { change: activeSessionFormActiveSessionChange }, data.sessions.map(session => {
-	    const user = data.users.filter(user => user.id === session.userId)[0];
-	    return new _Element2.default('option', { value: session.id, selected: session.id === data.activeSessionId }, _NO_EVENTS2.default, [new _Text2.default(user.name)]);
-	  }))])]);
-	}
-	
-	function renderActiveUser(data) {
-	  const activeSession = data.sessions.filter(_ref => {
-	    let id = _ref.id;
-	    return id === data.activeSessionId;
-	  })[0];
-	  const activeUser = activeSession ? data.users.filter(_ref2 => {
-	    let id = _ref2.id;
-	    return id === activeSession.userId;
-	  })[0] : undefined;
-	  const activeItems = activeUser ? data.items.filter(_ref3 => {
-	    let userId = _ref3.userId;
-	    return userId === activeUser.id;
-	  }) : [];
-	
-	  return new _Element2.default('div', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, activeUser ? [new _Element2.default('p', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default('Welcome ' + activeUser.name + '.')]), renderItems(activeItems)] : [new _Element2.default('p', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default('Please sign in.')])]);
-	}
-	
-	function renderItems(items) {
-	  return new _Element2.default('ol', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, items.map(item => new _Element2.default('li', { 'data-key': item.id }, _NO_EVENTS2.default, [new _Text2.default(item.title)])));
-	}
-	
-	let actual = (0, _domToVirtualDom2.default)(document.getElementById('root'));
-	
-	render();
-	// setInterval(render, 1000)
-	
-	function render() {
-	  const desired = new _Element2.default('div', { id: 'root', class: 'container' }, _NO_EVENTS2.default, [renderSignInForm(_data2.default), renderActiveSessionForm(_data2.default), renderActiveUser(_data2.default), new _Element2.default('span', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default(new Date().toString())])]);
-	
-	  desired.children.push(new _Element2.default('pre', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default((0, _virtualDomToHtml2.default)(desired))]));
-	
-	  (0, _reconcile2.default)(actual.element.parentNode, actual, desired);
-	
-	  actual = desired;
-	}
+	__webpack_require__(1);
 
 /***/ },
 /* 1 */
@@ -210,14 +57,58 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.default = render;
 	
-	var _queryString = __webpack_require__(2);
+	var _data = __webpack_require__(2);
+	
+	var _data2 = _interopRequireDefault(_data);
+	
+	var _domToVirtualDom = __webpack_require__(6);
+	
+	var _domToVirtualDom2 = _interopRequireDefault(_domToVirtualDom);
+	
+	var _reconcile = __webpack_require__(28);
+	
+	var _reconcile2 = _interopRequireDefault(_reconcile);
+	
+	var _renderMain = __webpack_require__(29);
+	
+	var _renderMain2 = _interopRequireDefault(_renderMain);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	/* eslint-env browser */
+	let actual = null;
+	if (typeof document !== "undefined") {
+	  actual = (0, _domToVirtualDom2.default)(document.getElementById('root'));
+	  render();
+	}
+	
+	function render() {
+	  const desired = (0, _renderMain2.default)(_data2.default);
+	  (0, _reconcile2.default)(actual.element.parentNode, actual, desired);
+	  actual = desired;
+	}
+
+/***/ },
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _queryString = __webpack_require__(3);
 	
 	var _queryString2 = _interopRequireDefault(_queryString);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	const qs = _queryString2.default.parse(location.search);
+	const qs = typeof location === 'undefined' ? {} : _queryString2.default.parse(location.search); // eslint-disable-line no-undef
+	
+	console.log(qs);
 	
 	exports.default = {
 	  sessions: [{
@@ -261,12 +152,12 @@
 	};
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-	var strictUriEncode = __webpack_require__(3);
-	var objectAssign = __webpack_require__(4);
+	var strictUriEncode = __webpack_require__(4);
+	var objectAssign = __webpack_require__(5);
 	
 	function encode(value, opts) {
 		if (opts.encode) {
@@ -365,7 +256,7 @@
 
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -377,7 +268,7 @@
 
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -466,7 +357,7 @@
 
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -474,61 +365,95 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.default = Element;
+	exports.default = domToVirtualDom;
 	
-	var _Node = __webpack_require__(6);
+	var _Comment = __webpack_require__(7);
 	
-	var _Node2 = _interopRequireDefault(_Node);
+	var _Comment2 = _interopRequireDefault(_Comment);
 	
-	var _util = __webpack_require__(7);
+	var _Text = __webpack_require__(25);
 	
-	var _expectString = __webpack_require__(17);
+	var _Text2 = _interopRequireDefault(_Text);
 	
-	var _expectString2 = _interopRequireDefault(_expectString);
+	var _Element = __webpack_require__(26);
+	
+	var _Element2 = _interopRequireDefault(_Element);
+	
+	var _NO_EVENTS = __webpack_require__(27);
+	
+	var _NO_EVENTS2 = _interopRequireDefault(_NO_EVENTS);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function Element(tag, attributes, events, children) {
-	  _Node2.default.call(this, children);
-	  this.tag = (0, _expectString2.default)(tag);
-	  this.attributes = Object.keys((0, _util.expectAttributes)(attributes)).reduce((map, key) => {
-	    const value = attributes[key];
-	    if (typeof value === 'string') map[key] = value;else if (value === true) map[key] = '';
-	    return map;
-	  }, {});
-	  this.events = (0, _util.expectEvents)(events);
-	  this.children = (0, _util.expectChildren)(children);
+	/* eslint-env browser */
+	
+	function extractAttributes(node) {
+	  const attributes = {};
+	  for (let i = 0, a = node.attributes, l = a.length; i < l; i++) {
+	    var _a$i = a[i];
+	    const name = _a$i.name;
+	    const value = _a$i.value;
+	
+	    attributes[name] = value;
+	  }
+	  return attributes;
 	}
 	
-	Element.prototype = Object.create(_Node2.default.prototype, {
+	function domToVirtualDom(node) {
+	  let vnode;
+	  switch (node.nodeType) {
+	    case Node.COMMENT_NODE:
+	      vnode = new _Comment2.default(node.nodeValue);
+	      break;
+	    case Node.TEXT_NODE:
+	      vnode = new _Text2.default(node.nodeValue);
+	      break;
+	    case Node.ELEMENT_NODE:
+	      vnode = new _Element2.default(node.tagName.toLowerCase(), extractAttributes(node), _NO_EVENTS2.default, Array.prototype.map.call(node.childNodes, domToVirtualDom));
+	      break;
+	    default:
+	      throw new Error(`Cannot create virtual dom for node of type ${ node.nodeType }.`);
+	
+	  }
+	  vnode.element = node;
+	  return vnode;
+	}
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = Comment;
+	
+	var _Node = __webpack_require__(8);
+	
+	var _Node2 = _interopRequireDefault(_Node);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function Comment(text) {
+	  _Node2.default.call(this);
+	  this.text = text;
+	}
+	
+	Comment.prototype = Object.create(_Node2.default.prototype, {
 	  constructor: {
-	    value: Element,
+	    value: Comment,
 	    writable: true,
 	    enumerable: false,
 	    configurable: true
 	  }
 	});
 	
-	Element.prototype.mount = function (parent, before) {
-	  const tag = this.tag;
-	  const attributes = this.attributes;
-	  const events = this.events;
-	  const children = this.children;
+	Comment.prototype.mount = function (parent, before) {
+	  const element = document.createComment(this.text);
 	
-	
-	  const element = this.element = document.createElement(tag);
-	
-	  Object.keys(attributes).forEach(key => {
-	    element.setAttribute(key, attributes[key]);
-	  });
-	
-	  Object.keys(events).forEach(key => {
-	    element.addEventListener(key, events[key]);
-	  });
-	
-	  children.forEach(child => {
-	    child.mount(element);
-	  });
+	  element['@@virtual'] = this;
 	
 	  if (before) {
 	    parent.insertBefore(element, before);
@@ -538,7 +463,7 @@
 	};
 
 /***/ },
-/* 6 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -548,7 +473,7 @@
 	});
 	exports.default = Node;
 	
-	var _util = __webpack_require__(7);
+	var _util = __webpack_require__(9);
 	
 	function Node() {
 	  if (this.constructor === Node) throw new Error('Cannot instantiate abstract class Node.');
@@ -567,7 +492,7 @@
 	};
 
 /***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -583,47 +508,47 @@
 	exports.expectEvents = expectEvents;
 	exports.expectChildren = expectChildren;
 	
-	var _Node = __webpack_require__(6);
+	var _Node = __webpack_require__(8);
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
-	var _isArray = __webpack_require__(8);
+	var _isArray = __webpack_require__(10);
 	
 	var _isArray2 = _interopRequireDefault(_isArray);
 	
-	var _isObject = __webpack_require__(9);
+	var _isObject = __webpack_require__(11);
 	
 	var _isObject2 = _interopRequireDefault(_isObject);
 	
-	var _expectObject = __webpack_require__(10);
+	var _expectObject = __webpack_require__(12);
 	
 	var _expectObject2 = _interopRequireDefault(_expectObject);
 	
-	var _isString = __webpack_require__(16);
+	var _isString = __webpack_require__(18);
 	
 	var _isString2 = _interopRequireDefault(_isString);
 	
-	var _expectString = __webpack_require__(17);
+	var _expectString = __webpack_require__(19);
 	
 	var _expectString2 = _interopRequireDefault(_expectString);
 	
-	var _expectArray = __webpack_require__(18);
+	var _expectArray = __webpack_require__(20);
 	
 	var _expectArray2 = _interopRequireDefault(_expectArray);
 	
-	var _isFunction = __webpack_require__(19);
+	var _isFunction = __webpack_require__(21);
 	
 	var _isFunction2 = _interopRequireDefault(_isFunction);
 	
-	var _expectFunction = __webpack_require__(20);
+	var _expectFunction = __webpack_require__(22);
 	
 	var _expectFunction2 = _interopRequireDefault(_expectFunction);
 	
-	var _isBoolean = __webpack_require__(21);
+	var _isBoolean = __webpack_require__(23);
 	
 	var _isBoolean2 = _interopRequireDefault(_isBoolean);
 	
-	var _isUndefined = __webpack_require__(22);
+	var _isUndefined = __webpack_require__(24);
 	
 	var _isUndefined2 = _interopRequireDefault(_isUndefined);
 	
@@ -674,7 +599,7 @@
 	}
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -700,7 +625,7 @@
 	//# sourceMappingURL=isArray.js.map
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -724,7 +649,7 @@
 	//# sourceMappingURL=isObject.js.map
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -734,7 +659,7 @@
 	});
 	exports.default = expectObject;
 	
-	var _inspect = __webpack_require__(11);
+	var _inspect = __webpack_require__(13);
 	
 	var _inspect2 = _interopRequireDefault(_inspect);
 	
@@ -754,7 +679,7 @@
 	//# sourceMappingURL=expectObject.js.map
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -763,7 +688,7 @@
 	  value: true
 	});
 	
-	var _util = __webpack_require__(12);
+	var _util = __webpack_require__(14);
 	
 	Object.defineProperty(exports, 'default', {
 	  enumerable: true,
@@ -774,7 +699,7 @@
 	//# sourceMappingURL=inspect.js.map
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global, process) {// Copyright Joyent, Inc. and other Node contributors.
@@ -1302,7 +1227,7 @@
 	}
 	exports.isPrimitive = isPrimitive;
 	
-	exports.isBuffer = __webpack_require__(14);
+	exports.isBuffer = __webpack_require__(16);
 	
 	function objectToString(o) {
 	  return Object.prototype.toString.call(o);
@@ -1346,7 +1271,7 @@
 	 *     prototype.
 	 * @param {function} superCtor Constructor function to inherit prototype from.
 	 */
-	exports.inherits = __webpack_require__(15);
+	exports.inherits = __webpack_require__(17);
 	
 	exports._extend = function(origin, add) {
 	  // Don't do anything if add isn't an object
@@ -1364,10 +1289,10 @@
 	  return Object.prototype.hasOwnProperty.call(obj, prop);
 	}
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(13)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(15)))
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -1553,7 +1478,7 @@
 
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports) {
 
 	module.exports = function isBuffer(arg) {
@@ -1564,7 +1489,7 @@
 	}
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports) {
 
 	if (typeof Object.create === 'function') {
@@ -1593,7 +1518,7 @@
 
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1617,7 +1542,7 @@
 	//# sourceMappingURL=isString.js.map
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1627,7 +1552,7 @@
 	});
 	exports.default = expectString;
 	
-	var _inspect = __webpack_require__(11);
+	var _inspect = __webpack_require__(13);
 	
 	var _inspect2 = _interopRequireDefault(_inspect);
 	
@@ -1647,7 +1572,7 @@
 	//# sourceMappingURL=expectString.js.map
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1657,11 +1582,11 @@
 	});
 	exports.default = expectArray;
 	
-	var _inspect = __webpack_require__(11);
+	var _inspect = __webpack_require__(13);
 	
 	var _inspect2 = _interopRequireDefault(_inspect);
 	
-	var _isArray = __webpack_require__(8);
+	var _isArray = __webpack_require__(10);
 	
 	var _isArray2 = _interopRequireDefault(_isArray);
 	
@@ -1683,7 +1608,7 @@
 	//# sourceMappingURL=expectArray.js.map
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1707,7 +1632,7 @@
 	//# sourceMappingURL=isFunction.js.map
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1717,7 +1642,7 @@
 	});
 	exports.default = expectFunction;
 	
-	var _inspect = __webpack_require__(11);
+	var _inspect = __webpack_require__(13);
 	
 	var _inspect2 = _interopRequireDefault(_inspect);
 	
@@ -1737,7 +1662,7 @@
 	//# sourceMappingURL=expectFunction.js.map
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1761,7 +1686,7 @@
 	//# sourceMappingURL=isBoolean.js.map
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1785,7 +1710,7 @@
 	//# sourceMappingURL=isUndefined.js.map
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1795,7 +1720,7 @@
 	});
 	exports.default = Text;
 	
-	var _Node = __webpack_require__(6);
+	var _Node = __webpack_require__(8);
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
@@ -1828,7 +1753,7 @@
 	};
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1836,95 +1761,61 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.default = domToVirtualDom;
+	exports.default = Element;
 	
-	var _Comment = __webpack_require__(25);
-	
-	var _Comment2 = _interopRequireDefault(_Comment);
-	
-	var _Text = __webpack_require__(23);
-	
-	var _Text2 = _interopRequireDefault(_Text);
-	
-	var _Element = __webpack_require__(5);
-	
-	var _Element2 = _interopRequireDefault(_Element);
-	
-	var _NO_EVENTS = __webpack_require__(26);
-	
-	var _NO_EVENTS2 = _interopRequireDefault(_NO_EVENTS);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	/* eslint-env browser */
-	
-	function extractAttributes(node) {
-	  const attributes = {};
-	  for (let i = 0, a = node.attributes, l = a.length; i < l; i++) {
-	    var _a$i = a[i];
-	    const name = _a$i.name;
-	    const value = _a$i.value;
-	
-	    attributes[name] = value;
-	  }
-	  return attributes;
-	}
-	
-	function domToVirtualDom(node) {
-	  let vnode;
-	  switch (node.nodeType) {
-	    case Node.COMMENT_NODE:
-	      vnode = new _Comment2.default(node.nodeValue);
-	      break;
-	    case Node.TEXT_NODE:
-	      vnode = new _Text2.default(node.nodeValue);
-	      break;
-	    case Node.ELEMENT_NODE:
-	      vnode = new _Element2.default(node.tagName.toLowerCase(), extractAttributes(node), _NO_EVENTS2.default, Array.prototype.map.call(node.childNodes, domToVirtualDom));
-	      break;
-	    default:
-	      throw new Error(`Cannot create virtual dom for node of type ${ node.nodeType }.`);
-	
-	  }
-	  vnode.element = node;
-	  return vnode;
-	}
-
-/***/ },
-/* 25 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = Comment;
-	
-	var _Node = __webpack_require__(6);
+	var _Node = __webpack_require__(8);
 	
 	var _Node2 = _interopRequireDefault(_Node);
 	
+	var _util = __webpack_require__(9);
+	
+	var _expectString = __webpack_require__(19);
+	
+	var _expectString2 = _interopRequireDefault(_expectString);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	function Comment(text) {
-	  _Node2.default.call(this);
-	  this.text = text;
+	function Element(tag, attributes, events, children) {
+	  _Node2.default.call(this, children);
+	  this.tag = (0, _expectString2.default)(tag);
+	  this.attributes = Object.keys((0, _util.expectAttributes)(attributes)).reduce((map, key) => {
+	    const value = attributes[key];
+	    if (typeof value === 'string') map[key] = value;else if (value === true) map[key] = '';
+	    return map;
+	  }, {});
+	  this.events = (0, _util.expectEvents)(events);
+	  this.children = (0, _util.expectChildren)(children);
 	}
 	
-	Comment.prototype = Object.create(_Node2.default.prototype, {
+	Element.prototype = Object.create(_Node2.default.prototype, {
 	  constructor: {
-	    value: Comment,
+	    value: Element,
 	    writable: true,
 	    enumerable: false,
 	    configurable: true
 	  }
 	});
 	
-	Comment.prototype.mount = function (parent, before) {
-	  const element = document.createComment(this.text);
+	Element.prototype.mount = function (parent, before) {
+	  const tag = this.tag;
+	  const attributes = this.attributes;
+	  const events = this.events;
+	  const children = this.children;
 	
-	  element['@@virtual'] = this;
+	
+	  const element = this.element = document.createElement(tag);
+	
+	  Object.keys(attributes).forEach(key => {
+	    element.setAttribute(key, attributes[key]);
+	  });
+	
+	  Object.keys(events).forEach(key => {
+	    element.addEventListener(key, events[key]);
+	  });
+	
+	  children.forEach(child => {
+	    child.mount(element);
+	  });
 	
 	  if (before) {
 	    parent.insertBefore(element, before);
@@ -1934,7 +1825,7 @@
 	};
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1943,93 +1834,9 @@
 	  value: true
 	});
 	exports.default = {};
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = virtualDomToHtml;
-	
-	var _Comment = __webpack_require__(25);
-	
-	var _Comment2 = _interopRequireDefault(_Comment);
-	
-	var _Text = __webpack_require__(23);
-	
-	var _Text2 = _interopRequireDefault(_Text);
-	
-	var _Element = __webpack_require__(5);
-	
-	var _Element2 = _interopRequireDefault(_Element);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function attributesToHtml(attributes) {
-	  const keys = Object.keys(attributes);
-	  if (keys.length === 0) return '';
-	  return keys.reduce((string, key) => `${ string } ${ key }="${ attributes[key] }"`, '');
-	}
-	
-	var shouldOmitClosingTag = {
-	  'area': true,
-	  'base': true,
-	  'br': true,
-	  'col': true,
-	  'embed': true,
-	  'hr': true,
-	  'img': true,
-	  'input': true,
-	  'keygen': true,
-	  'link': true,
-	  'meta': true,
-	  'param': true,
-	  'source': true,
-	  'track': true,
-	  'wbr': true
-	};
-	
-	function virtualDomToHtml(node) {
-	  let prefix = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
-	
-	  switch (node.constructor) {
-	    case _Comment2.default:
-	      return `${ prefix }<!--${ node.text }-->\n`;
-	    case _Text2.default:
-	      return `${ prefix }${ node.text }\n`;
-	    case _Element2.default:
-	      return shouldOmitClosingTag[node.tag] && node.children.length === 0 ? `${ prefix }<${ node.tag }${ attributesToHtml(node.attributes) }/>\n` : `${ prefix }<${ node.tag }${ attributesToHtml(node.attributes) }>\n${ node.children.map(node => virtualDomToHtml(node, prefix + '  ')).join('') }${ prefix }</${ node.tag }>\n`;
-	  }
-	}
 
 /***/ },
 /* 28 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = {};
-
-/***/ },
-/* 29 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = [];
-
-/***/ },
-/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2039,15 +1846,15 @@
 	});
 	exports.default = reconcile;
 	
-	var _Comment = __webpack_require__(25);
+	var _Comment = __webpack_require__(7);
 	
 	var _Comment2 = _interopRequireDefault(_Comment);
 	
-	var _Element = __webpack_require__(5);
+	var _Element = __webpack_require__(26);
 	
 	var _Element2 = _interopRequireDefault(_Element);
 	
-	var _Text = __webpack_require__(23);
+	var _Text = __webpack_require__(25);
 	
 	var _Text2 = _interopRequireDefault(_Text);
 	
@@ -2161,6 +1968,246 @@
 	      }
 	      desired.element = element;
 	      break;
+	  }
+	}
+
+/***/ },
+/* 29 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = renderMain;
+	
+	var _data = __webpack_require__(2);
+	
+	var _data2 = _interopRequireDefault(_data);
+	
+	var _Element = __webpack_require__(26);
+	
+	var _Element2 = _interopRequireDefault(_Element);
+	
+	var _NO_ATTRIBUTES = __webpack_require__(30);
+	
+	var _NO_ATTRIBUTES2 = _interopRequireDefault(_NO_ATTRIBUTES);
+	
+	var _NO_CHILDREN = __webpack_require__(31);
+	
+	var _NO_CHILDREN2 = _interopRequireDefault(_NO_CHILDREN);
+	
+	var _NO_EVENTS = __webpack_require__(27);
+	
+	var _NO_EVENTS2 = _interopRequireDefault(_NO_EVENTS);
+	
+	var _render = __webpack_require__(1);
+	
+	var _render2 = _interopRequireDefault(_render);
+	
+	var _Text = __webpack_require__(25);
+	
+	var _Text2 = _interopRequireDefault(_Text);
+	
+	var _virtualDomToHtml = __webpack_require__(32);
+	
+	var _virtualDomToHtml2 = _interopRequireDefault(_virtualDomToHtml);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } } /* eslint-env shared-node-browser */
+	
+	
+	const ID_LENGTH = 6;
+	const ID_CHARACTERS = 'abcdefghijklmnopqrstuvwxyz0123456789';
+	const ID_CHARACTERS_LENGTH = ID_CHARACTERS.length;
+	
+	function generateId() {
+	  let id = '';
+	  for (let i = 0; i < ID_LENGTH; i++) {
+	    id = id + ID_CHARACTERS[Math.floor(Math.random() * ID_CHARACTERS_LENGTH)];
+	  }
+	  return id;
+	}
+	
+	function signInFormSubmit(event) {
+	  event.preventDefault();
+	
+	  setTimeout(function () {
+	    const user = {
+	      id: generateId(),
+	      name: _data2.default.username
+	    };
+	
+	    const session = {
+	      id: generateId(),
+	      userId: user.id,
+	      startDate: new Date().toISOString()
+	    };
+	
+	    _data2.default.users.push(user);
+	    _data2.default.sessions.push(session);
+	    _data2.default.username = '';
+	    _data2.default.password = '';
+	    _data2.default.activeSessionId = session.id;
+	    window.history.pushState(null, null, `${ location.pathname }?activeSessionId=${ _data2.default.activeSessionId }`);
+	    _data2.default.signInFormDisabled = false;
+	
+	    (0, _render2.default)();
+	  }, 1000);
+	
+	  _data2.default.signInFormDisabled = true;
+	
+	  (0, _render2.default)();
+	}
+	
+	function signInFormUsernameInput(event) {
+	  _data2.default.username = event.target.value;
+	
+	  if (_data2.default.username === '') {
+	    _data2.default.signInFormValidUsername = false;
+	  } else {
+	    _data2.default.signInFormValidUsername = true;
+	  }
+	
+	  (0, _render2.default)();
+	}
+	
+	function signInFormPasswordChange(event) {
+	  _data2.default.password = event.target.value;
+	
+	  (0, _render2.default)();
+	}
+	
+	function renderSignInForm(data) {
+	  return new _Element2.default('form', _NO_ATTRIBUTES2.default, { submit: signInFormSubmit }, [new _Element2.default('div', { class: ['form-group'].concat(_toConsumableArray(data.signInFormValidUsername ? ['has-success'] : ['has-error'])).join(' ') }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'username' }, _NO_EVENTS2.default, [new _Text2.default('Username')]), new _Element2.default('input', { type: 'text', class: 'form-control', id: 'username', placeholder: 'Username', value: data.username }, { input: signInFormUsernameInput }, _NO_CHILDREN2.default)].concat(_toConsumableArray(data.signInFormValidUsername ? [] : [new _Element2.default('span', { class: 'help-block' }, _NO_EVENTS2.default, [new _Text2.default('Please provide a username.')])]))), new _Element2.default('div', { class: 'form-group' }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'password' }, _NO_EVENTS2.default, [new _Text2.default('Password')]), new _Element2.default('input', { type: 'password', class: 'form-control', id: 'password', placeholder: 'Password', value: data.password }, { change: signInFormPasswordChange }, _NO_CHILDREN2.default)]), new _Element2.default('button', { class: 'btn btn-primary', type: 'submit', disabled: data.signInFormDisabled }, _NO_EVENTS2.default, [new _Text2.default('Sign In')])]);
+	}
+	
+	function activeSessionFormActiveSessionChange(event) {
+	  _data2.default.activeSessionId = event.target.value;
+	  window.history.pushState(null, null, `${ location.pathname }?activeSessionId=${ _data2.default.activeSessionId }`);
+	
+	  (0, _render2.default)();
+	}
+	
+	function renderActiveSessionForm(data) {
+	  return new _Element2.default('form', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Element2.default('div', { class: 'form-group' }, _NO_EVENTS2.default, [new _Element2.default('label', { for: 'active-session' }, _NO_EVENTS2.default, [new _Text2.default('Active Session')]), new _Element2.default('select', { class: 'form-control', id: 'active-session' }, { change: activeSessionFormActiveSessionChange }, data.sessions.map(session => {
+	    const user = data.users.filter(user => user.id === session.userId)[0];
+	    return new _Element2.default('option', { value: session.id, selected: session.id === data.activeSessionId }, _NO_EVENTS2.default, [new _Text2.default(user.name)]);
+	  }))])]);
+	}
+	
+	function renderActiveUser(data) {
+	  const activeSession = data.sessions.filter(_ref => {
+	    let id = _ref.id;
+	    return id === data.activeSessionId;
+	  })[0];
+	  const activeUser = activeSession ? data.users.filter(_ref2 => {
+	    let id = _ref2.id;
+	    return id === activeSession.userId;
+	  })[0] : undefined;
+	  const activeItems = activeUser ? data.items.filter(_ref3 => {
+	    let userId = _ref3.userId;
+	    return userId === activeUser.id;
+	  }) : [];
+	
+	  return new _Element2.default('div', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, activeUser ? [new _Element2.default('p', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default('Welcome ' + activeUser.name + '.')]), renderItems(activeItems)] : [new _Element2.default('p', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default('Please sign in.')])]);
+	}
+	
+	function renderItems(items) {
+	  return new _Element2.default('ol', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, items.map(item => new _Element2.default('li', { 'data-key': item.id }, _NO_EVENTS2.default, [new _Text2.default(item.title)])));
+	}
+	
+	function renderMain(data) {
+	  const desired = new _Element2.default('div', { id: 'root', class: 'container' }, _NO_EVENTS2.default, [renderSignInForm(data), renderActiveSessionForm(data), renderActiveUser(data), new _Element2.default('span', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default(new Date().toString())])]);
+	
+	  desired.children.push(new _Element2.default('pre', _NO_ATTRIBUTES2.default, _NO_EVENTS2.default, [new _Text2.default((0, _virtualDomToHtml2.default)(desired))]));
+	
+	  return desired;
+	}
+
+/***/ },
+/* 30 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = {};
+
+/***/ },
+/* 31 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = [];
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = virtualDomToHtml;
+	
+	var _Comment = __webpack_require__(7);
+	
+	var _Comment2 = _interopRequireDefault(_Comment);
+	
+	var _Text = __webpack_require__(25);
+	
+	var _Text2 = _interopRequireDefault(_Text);
+	
+	var _Element = __webpack_require__(26);
+	
+	var _Element2 = _interopRequireDefault(_Element);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function attributesToHtml(attributes) {
+	  const keys = Object.keys(attributes);
+	  if (keys.length === 0) return '';
+	  return keys.reduce((string, key) => `${ string } ${ key }="${ attributes[key] }"`, '');
+	}
+	
+	var shouldOmitClosingTag = {
+	  'area': true,
+	  'base': true,
+	  'br': true,
+	  'col': true,
+	  'embed': true,
+	  'hr': true,
+	  'img': true,
+	  'input': true,
+	  'keygen': true,
+	  'link': true,
+	  'meta': true,
+	  'param': true,
+	  'source': true,
+	  'track': true,
+	  'wbr': true
+	};
+	
+	function virtualDomToHtml(node) {
+	  let prefix = arguments.length <= 1 || arguments[1] === undefined ? '' : arguments[1];
+	
+	  switch (node.constructor) {
+	    case _Comment2.default:
+	      return `${ prefix }<!--${ node.text }-->\n`;
+	    case _Text2.default:
+	      return `${ prefix }${ node.text }\n`;
+	    case _Element2.default:
+	      return shouldOmitClosingTag[node.tag] && node.children.length === 0 ? `${ prefix }<${ node.tag }${ attributesToHtml(node.attributes) }/>\n` : `${ prefix }<${ node.tag }${ attributesToHtml(node.attributes) }>\n${ node.children.map(node => virtualDomToHtml(node, prefix + '  ')).join('') }${ prefix }</${ node.tag }>\n`;
 	  }
 	}
 
