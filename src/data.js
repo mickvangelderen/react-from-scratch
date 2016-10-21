@@ -1,6 +1,8 @@
 import queryString from 'query-string'
 
-const qs = queryString.parse(location.search)
+const qs = typeof location === 'undefined' ? {} : queryString.parse(location.search) // eslint-disable-line no-undef
+
+console.log(qs)
 
 export default {
   sessions: [
