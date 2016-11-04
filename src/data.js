@@ -48,5 +48,6 @@ export default {
       description: 'Time for the inquisition!'
     }
   ],
+  path: typeof location === 'undefined' ? undefined : location.pathname, // eslint-disable-line no-undef
   activeSessionId: qs.activeSessionId
 }
